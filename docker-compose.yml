@@ -14,7 +14,8 @@ services:
   kafka:
     image: confluentinc/cp-kafka:latest
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_started
     ports:
       - 29092:29092
     healthcheck:
@@ -32,35 +33,22 @@ services:
     networks:
       - local
 
-  producer:
-    depends_on:
-      - zookeeper
-      - kafka
+  products_producer:
+      depends_on:
+        zookeeper:
+          condition: service_started
+        kafka:
+          condition: service_started
 
-    build: /home/antonshubin/GolandProjects/ProductsGenerator
-    ports:
-      - 9090:9090
-    networks:
-      - local
+      build: /home/antonshubin/GolandProjects/ProductsGenerator
+      ports:
+        - 9090:9090
+      networks:
+        - local
 
-    environment:
-      ZADDRES: kafka
+      environment:
+        ZADDRES: kafka:9092
 
-#  consumer:
-#    depends_on:
-#      - zookeeper
-#      - kafka
-#      - producer
-#
-#    ports:
-#      - 9091:9091
-#
-#    build: /home/antonshubin/GolandProjects/Kafka-pong
-#    networks:
-#      - local
-#
-#    environment:
-#      ZADDRES: kafka
 
 networks:
   local:

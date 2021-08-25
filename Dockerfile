@@ -1,7 +1,7 @@
 FROM golang:latest
 
-COPY . /user/ProductsGenerator
-WORKDIR /user/ProductsGenerator
+COPY . /user/AliExpress/ProductGenerator
+WORKDIR /user/AliExpress/ProductGenerator
 CMD go run ./main.go
 
 EXPOSE 9092
