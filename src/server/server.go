@@ -21,28 +21,37 @@ func StartServer() {
 	if err != nil {
 		log.Println(err)
 	}
+
 	defer conn.Close()
 
 	for {
+		messages := make([]kafka.Message, 10)
+		for i := 0; i < 10; i++ {
 
-		myproduct := models.GenerateProduct()
+			myproduct := models.GenerateProduct()
 
-		res, err := json.Marshal(myproduct)
-		if err != nil {
-			log.Println("failed to marshal object ", err)
+			res, err := json.Marshal(myproduct)
+			if err != nil {
+				log.Println("failed to marshal object ", err)
+			}
+			fmt.Printf("product: %s price: %d \n", myproduct.Name, myproduct.Price)
+			fmt.Printf("bytes: %s", res)
+
+			messages[i] = kafka.Message{Value: res}
 		}
-		fmt.Printf("product: %s price: %d \n", myproduct.Name, myproduct.Price)
-		fmt.Printf("bytes: %s", res)
+
+		for k, v := range messages {
+			log.Printf("[%d]: %v", k, v.Value)
+		}
 
 		_, err = conn.WriteMessages(
-			kafka.Message{Value: res},
+			messages...,
 		)
 
 		if err != nil {
 			log.Fatal("failed to write messages:", err)
 		}
 
-		fmt.Println(res)
 		time.Sleep(3 * time.Second)
 	}
 
